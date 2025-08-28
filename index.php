@@ -77,12 +77,12 @@
                     <div class="neon-border text-center p-6 bg-gray-50 rounded-lg transition-all duration-300 hover:bg-red-50 hover:scale-105 cursor-pointer">
                         <div class="text-2xl font-medium text-gray-700 mb-2">Adults</div>
                         <div class="font-bold text-4xl text-gray-800">₱599</div>
-                        <div class="text-sm text-gray-600 mt-2">12 years and above</div>
+                        <div class="text-sm text-gray-600 mt-2">4 feet above</div>
                     </div>
                     <div class="neon-border text-center p-6 bg-gray-50 rounded-lg transition-all duration-300 hover:bg-red-50 hover:scale-105 cursor-pointer">
                         <div class="text-2xl font-medium text-gray-700 mb-2">Kids</div>
                         <div class="font-bold text-4xl text-gray-800">₱299</div>
-                        <div class="text-sm text-gray-600 mt-2">3-11 years old</div>
+                        <div class="text-sm text-gray-600 mt-2">3 to 4 feet</div>
                     </div>
                 </div>
                 <div class="grid md:grid-cols-2 gap-4">
@@ -286,9 +286,11 @@
     <script>
         (function(){
         const images = [
-            "https://i.ibb.co/JRGDpYbd/banner.jpg",
-            "https://i.ibb.co/nsMtzSy4/0296273846-n.jpg",
-            "https://i.ibb.co/gLZQFpcn/70360153841-n.jpg",
+            "https://i.ibb.co/KjVP9QK9/Unli-Paluto.jpg",
+            "https://i.ibb.co/Lzx4Gqmy/Paluto.jpg",
+            "https://i.ibb.co/CKhbxZcs/Mixed-Seafood.jpg",
+            "https://i.ibb.co/v6Q5xfRJ/Calamares.jpg",
+            "https://i.ibb.co/CKzzKc1Z/Buttered-Shrimp.jpg",
         ];
 
         const slide   = document.getElementById('heroSlide');
