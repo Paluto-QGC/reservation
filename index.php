@@ -77,7 +77,9 @@
 
             <!-- Pricing Section -->
             <div class="mb-8 bg-white rounded-xl p-6 max-w-3xl mx-auto shadow-lg border border-gray-200">
-                <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">UNLI PALUTO PRICE</h2>
+                <h2 class="text-3xl font-bold text-center mb-6" style="color:#d0080e;">
+                    UNLI PALUTO PRICE
+                </h2>
                 <div class="grid md:grid-cols-2 gap-6 mb-6">
                     <div class="neon-border text-center p-6 bg-gray-50 rounded-lg transition-all duration-300 hover:bg-red-50 hover:scale-105 cursor-pointer">
                         <div class="text-2xl font-medium text-gray-700 mb-2">Adults</div>
@@ -326,7 +328,10 @@
     <script>
         (function(){
         const images = [
-            "https://i.ibb.co/KjVP9QK9/Unli-Paluto.jpg",
+            "https://i.ibb.co/HpzmZ4w1/Unli-Paluto.jpg",
+            "https://i.ibb.co/V0mXs5Lw/Seafood-Tower.jpg" ,
+            "https://i.ibb.co/cc2SN53R/Unli-Paluto-Upgrade.jpg",
+            "https://i.ibb.co/jPgd1KQq/Birthday-Promo.jpg" ,
             "https://i.ibb.co/Lzx4Gqmy/Paluto.jpg",
             "https://i.ibb.co/CKhbxZcs/Mixed-Seafood.jpg",
             "https://i.ibb.co/v6Q5xfRJ/Calamares.jpg",
