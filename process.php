@@ -12,14 +12,6 @@ use Dotenv\Dotenv;
    Bootstrap / Config
 ----------------------------------------------------------------------------- */
 @date_default_timezone_set('Asia/Manila');
-
-require __DIR__ . '/vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use Google\Client as GoogleClient;
-use Google\Service\Sheets as GoogleSheets;
-use Dotenv\Dotenv;
-
 /** Trim + strip tags */
 function clean(string $s): string { return trim(strip_tags($s)); }
 
