@@ -57,51 +57,31 @@ try {
   $headers = $values[0];
   $rows    = array_slice($values, 1);
 
-  // Debug to Render logs
-  error_log('[checkin] Raw headers: ' . json_encode($headers));
-
+  // normalize header names -> column index
   $norm = static fn(string $s): string => strtolower(preg_replace('/[^a-z0-9]+/','', $s));
   $idx = [];
   foreach ($headers as $i => $h) { $idx[$norm((string)$h)] = $i; }
 
-  // Debug normalized keys
-  error_log('[checkin] Normalized header map: ' . json_encode($idx));
-
-  // Accept common synonyms for the code column
-    // Try multiple synonyms for "Code"
-    $colCode = $idx['code']
+  // --- robust column detection with fallbacks ---
+  // A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
+  $colCode   = $idx['code']
             ?? $idx['reservationno']
             ?? $idx['reservationnumber']
             ?? $idx['resno']
-            ?? null;
+            ?? 1;   // B
 
-    if ($colCode === null) {
-        // Debug output to see what headers were found
-        http_response_code(500);
-        echo json_encode([
-        'status'  => 'error',
-        'message' => 'No "Code" column in header row',
-        'headers' => $headers,
-        'normalized' => array_keys($idx),
-        ]);
-        exit;
-    }
+  $colName   = $idx['name']         ?? 4;   // E
+  $colEmail  = $idx['email']        ?? 6;   // G
+  $colPhone  = $idx['phone']        ?? $idx['phonenumber'] ?? 5;   // F
+  $colDate   = $idx['date']         ?? 2;   // C
+  $colTime   = $idx['time']         ?? 3;   // D
+  $colAdult  = $idx['adult']        ?? 7;   // H
+  $colKid    = $idx['kid']          ?? 8;   // I
+  $colTotal  = $idx['totalpax']     ?? $idx['totalguests'] ?? $idx['total'] ?? 9;   // J
+  $colNotes  = $idx['statusnotes']  ?? $idx['status'] ?? 11;  // L
 
-
-  $colName   = $idx['name']           ?? null;
-  $colEmail  = $idx['email']          ?? null;
-  $colPhone  = $idx['phone']          ?? $idx['phonenumber'] ?? null;
-  $colDate   = $idx['date']           ?? null;
-  $colTime   = $idx['time']           ?? null;
-  $colAdult  = $idx['adult']          ?? $idx['adults'] ?? null;
-  $colKid    = $idx['kid']            ?? $idx['kids']   ?? $idx['children'] ?? null;
-  $colTotal  = $idx['totalpax']       ?? $idx['totalguests'] ?? $idx['total'] ?? null;
-  $colNotes  = $idx['statusnotes']    ?? $idx['status'] ?? $idx['notes'] ?? null;
-
-  $colChecked = $idx['checkedin']     ?? $idx['checked'] ?? null;
-  $colChkTime = $idx['checkintime']   ?? $idx['checkedtime'] ?? $idx['timechecked'] ?? $idx['checkedinat'] ?? null;
-
-  if ($colCode === null) throw new RuntimeException('No "Code" column in header row');
+  $colChecked = $idx['checkedin']   ?? $idx['checked'] ?? 12; // M
+  $colChkTime = $idx['checkintime'] ?? $idx['checkedtime'] ?? $idx['timechecked'] ?? $idx['checkedinat'] ?? 13; // N
 
   // ---- Find row by Code ----
   $rowIndex = null; $rowData = null;
@@ -111,23 +91,24 @@ try {
   }
   if (!$rowIndex) { echo json_encode(['status'=>'error','message'=>'Reservation code not found.']); exit; }
 
-  $rowData = array_pad($rowData, count($headers), '');
+  $rowData = array_pad($rowData, max(count($headers), 26), '');
 
   // ---- Details for UI ----
-  $name   = $colName  !== null ? trim((string)$rowData[$colName])  : '';
-  $email  = $colEmail !== null ? trim((string)$rowData[$colEmail]) : '';
-  $phone  = $colPhone !== null ? trim((string)$rowData[$colPhone]) : '';
-  $date   = $colDate  !== null ? trim((string)$rowData[$colDate])  : '';
-  $time   = $colTime  !== null ? trim((string)$rowData[$colTime])  : '';
-  $adults = $colAdult !== null ? (int)$rowData[$colAdult] : 0;
-  $kids   = $colKid   !== null ? (int)$rowData[$colKid]   : 0;
-  $total  = $colTotal !== null ? (int)$rowData[$colTotal] : ($adults + $kids);
+  $name   = trim((string)$rowData[$colName]  ?? '');
+  $email  = trim((string)$rowData[$colEmail] ?? '');
+  $phone  = trim((string)$rowData[$colPhone] ?? '');
+  $date   = trim((string)$rowData[$colDate]  ?? '');
+  $time   = trim((string)$rowData[$colTime]  ?? '');
+  $adults = (int)($rowData[$colAdult] ?? 0);
+  $kids   = (int)($rowData[$colKid]   ?? 0);
+  $total  = ($rowData[$colTotal] !== '' ? (int)$rowData[$colTotal] : ($adults + $kids));
 
   // ---- Already checked? ----
   $already=false; $prevAt='';
-  if ($colChecked !== null) {
-    $already = strtoupper(trim((string)($rowData[$colChecked] ?? ''))) === 'YES';
-    if ($already && $colChkTime !== null) $prevAt = trim((string)($rowData[$colChkTime] ?? ''));
+  $checkedVal = strtoupper(trim((string)($rowData[$colChecked] ?? '')));
+  if ($checkedVal === 'YES') {
+    $already = true;
+    $prevAt  = trim((string)($rowData[$colChkTime] ?? ''));
   } elseif ($colNotes !== null) {
     $notesVal = strtoupper((string)($rowData[$colNotes] ?? ''));
     if (strpos($notesVal,'CHECKED') !== false) $already = true;
