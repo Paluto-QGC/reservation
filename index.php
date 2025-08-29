@@ -29,9 +29,8 @@
                 <img src="https://i.ibb.co/0RPhcmb2/logo-pal.png" alt="Paluto Seafood Grill & Restaurant Logo" class="w-24 h-24 mb-4" onerror="this.style.display='none';">
                 <h1 class="text-4xl md:text-5xl font-bold text-center">PALUTO SEAFOOD GRILL & RESTAURANT</h1>
             </div>
-            <p class="text-xl mb-8 text-gray-700">Experience authentic Filipino flavors in a warm, welcoming atmosphere</p>
-            <p class="text-lg mb-8 text-gray-600 max-w-2xl mx-auto">Join us for an unforgettable dining experience featuring fresh seafood, traditional grilled specialties, and the finest Filipino cuisine. Perfect for family gatherings, celebrations, and special occasions.</p>
-            
+            <p class="text-xl mb-8 text-gray-700">Skip the Lines, Savor the Feast!</p>
+
             <!-- Photo Gallery (wide 3240x1080 carousel) -->
             <div class="mb-8">
             <div class="max-w-6xl mx-auto">
@@ -69,6 +68,10 @@
                 </div>
             </div>
             </div>
+
+            <p class="text-lg mb-8 text-gray-600 max-w-2xl mx-auto">Reserve at PALUTO and indulge in an unforgettable dining experience featuring fresh seafood, traditional grilled specialties, and the finest Filipino cuisine. Perfect for family gatherings, celebrations, and special occasions.</p>
+            
+
 
             <!-- Pricing Section -->
             <div class="mb-8 bg-white rounded-xl p-6 max-w-3xl mx-auto shadow-lg border border-gray-200">
