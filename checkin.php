@@ -10,38 +10,37 @@ use Dotenv\Dotenv;
 @date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json; charset=utf-8');
 
+/* Load .env if present (local); Render uses real envs */
+$envDir  = __DIR__;
+$envFile = $envDir.'/.env';
+if (is_file($envFile) && is_readable($envFile)) {
+    Dotenv::createImmutable($envDir)->load();
+} else {
+    Dotenv::createImmutable($envDir)->safeLoad();
+}
+
+/* Env helper */
+function envv(string $key, string $default = ''): string {
+    $v = $_ENV[$key] ?? getenv($key);
+    return ($v !== false && $v !== null && $v !== '') ? (string)$v : $default;
+}
+
 try {
-  // .env (same folder as this file)
-    $envDir = __DIR__;                 // adjust if file lives in subfolder
-    $envPath = $envDir . '/.env';
-    if (is_readable($envPath)) {
-        Dotenv::createImmutable($envDir)->load();
-    }
+  $SHEET_ID   = envv('GOOGLE_SHEET_ID');
+  $SHEET_NAME = envv('GOOGLE_SHEET_NAME', 'UNLI_PALUTO');
+  $CREDS_PATH = envv('GOOGLE_APPLICATION_CREDENTIALS', 'config/credentials.json');
 
-  $SHEET_ID   = $_ENV['GOOGLE_SHEET_ID'] ?? '';
-  $SHEET_NAME = $_ENV['GOOGLE_SHEET_NAME'] ?? 'UNLI_PALUTO';
-  $CREDS_PATH = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? 'config/credentials.json';
-  if (!$SHEET_ID) throw new RuntimeException('Missing GOOGLE_SHEET_ID');
+  if ($SHEET_ID === '') throw new RuntimeException('Missing GOOGLE_SHEET_ID');
 
-  // read "code" from JSON or GET/POST
-  $raw = file_get_contents('php://input') ?: '';
-  $body = json_decode($raw, true);
-  $code = '';
-  if (is_array($body) && isset($body['code']))      $code = trim((string)$body['code']);
-  elseif (isset($_GET['code']))                     $code = trim((string)$_GET['code']);
-  elseif (isset($_POST['code']))                    $code = trim((string)$_POST['code']);
-  // accept {"resNo":"PLT-123456"} too
-  if ($code === '' && is_array($body) && isset($body['resNo'])) $code = trim((string)$body['resNo']);
-  if ($code === '') { http_response_code(400); echo json_encode(['status'=>'error','message'=>'Missing reservation code']); exit; }
-
-  // normalize to PLT-###### if digits only
-  if (preg_match('~^\d{6}$~', $code)) $code = 'PLT-'.$code;
-  $code = strtoupper($code);
-
-  // Google client (same creds path as your submit script)
+  // normalize creds path and verify file
   $credPathAbs = $CREDS_PATH;
-  if (!preg_match('~^([A-Za-z]:\\\\|/).+~', $credPathAbs)) $credPathAbs = __DIR__.'/'.$credPathAbs;
-  if (!file_exists($credPathAbs)) throw new RuntimeException('Credentials not found at '.$credPathAbs);
+  if (!preg_match('~^([A-Za-z]:\\\\|/).+~', $credPathAbs)) {
+      $credPathAbs = __DIR__.'/'.$credPathAbs;
+  }
+  if (!file_exists($credPathAbs)) {
+      throw new RuntimeException('Credentials not found at '.$credPathAbs);
+  }
+
 
   $client = new GoogleClient();
   $client->setAuthConfig($credPathAbs);

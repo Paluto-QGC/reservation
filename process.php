@@ -11,39 +11,45 @@ use Dotenv\Dotenv;
 /* -----------------------------------------------------------------------------
    Bootstrap / Config
 ----------------------------------------------------------------------------- */
-// Default first; will re-read from .env below
 @date_default_timezone_set('Asia/Manila');
 
-/** Trim + strip tags (FILTER_SANITIZE_STRING is deprecated) */
+require __DIR__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use Google\Client as GoogleClient;
+use Google\Service\Sheets as GoogleSheets;
+use Dotenv\Dotenv;
+
+/** Trim + strip tags */
 function clean(string $s): string { return trim(strip_tags($s)); }
 
-// Load .env (project root)
-// Load .env only if it exists (Render uses real env vars)
+/* Load .env only if present locally (Render uses real env vars) */
 $envDir  = __DIR__;
-$envFile = $envDir . '/.env';
+$envFile = $envDir.'/.env';
 if (is_file($envFile) && is_readable($envFile)) {
     Dotenv::createImmutable($envDir)->load();
 } else {
-    // Don’t throw on Render; proceed with $_ENV from dashboard
     Dotenv::createImmutable($envDir)->safeLoad();
 }
 
-$APP_TZ = $_ENV['APP_TZ'] ?? 'Asia/Manila';
-@date_default_timezone_set($APP_TZ);
-
-$SHEET_ID   = $_ENV['GOOGLE_SHEET_ID'] ?? '';
-$SHEET_NAME = $_ENV['GOOGLE_SHEET_NAME'] ?? 'UNLI_PALUTO';
-$CREDS_PATH = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? 'config/credentials.json';
-$BASE_URL   = $_ENV['BASE_URL'] ?? '/';
-
-if (!$SHEET_ID) {
-  http_response_code(500);
-  exit('Missing GOOGLE_SHEET_ID in .env');
+/* Helper to read env reliably on Render (where $_ENV can be empty) */
+function envv(string $key, string $default = ''): string {
+    $v = $_ENV[$key] ?? getenv($key);
+    return ($v !== false && $v !== null && $v !== '') ? (string)$v : $default;
 }
 
-$ALLOWED_TIMES = [
-  '10:00','11:00','12:00','13:00','14:00','17:00','18:00','19:00','20:00','21:00'
-];
+$APP_TZ = envv('APP_TZ', 'Asia/Manila');
+@date_default_timezone_set($APP_TZ);
+
+$SHEET_ID   = envv('GOOGLE_SHEET_ID');                         // REQUIRED
+$SHEET_NAME = envv('GOOGLE_SHEET_NAME', 'UNLI_PALUTO');
+$CREDS_PATH = envv('GOOGLE_APPLICATION_CREDENTIALS', 'config/credentials.json');
+$BASE_URL   = envv('BASE_URL', '/');
+
+if ($SHEET_ID === '') {
+  http_response_code(500);
+  exit('Missing GOOGLE_SHEET_ID (set it in Render → Environment).');
+}
 
 /* -----------------------------------------------------------------------------
    Validate POST input
