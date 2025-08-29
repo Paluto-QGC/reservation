@@ -68,11 +68,25 @@ try {
   error_log('[checkin] Normalized header map: ' . json_encode($idx));
 
   // Accept common synonyms for the code column
-  $colCode   = $idx['code']
+    // Try multiple synonyms for "Code"
+    $colCode = $idx['code']
             ?? $idx['reservationno']
-            ?? $idx['resno']
             ?? $idx['reservationnumber']
+            ?? $idx['resno']
             ?? null;
+
+    if ($colCode === null) {
+        // Debug output to see what headers were found
+        http_response_code(500);
+        echo json_encode([
+        'status'  => 'error',
+        'message' => 'No "Code" column in header row',
+        'headers' => $headers,
+        'normalized' => array_keys($idx),
+        ]);
+        exit;
+    }
+
 
   $colName   = $idx['name']           ?? null;
   $colEmail  = $idx['email']          ?? null;
