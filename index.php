@@ -27,9 +27,11 @@
         <div class="max-w-4xl mx-auto text-center">
             <div class="flex flex-col items-center mb-8">
                 <img src="https://i.ibb.co/0RPhcmb2/logo-pal.png" alt="Paluto Seafood Grill & Restaurant Logo" class="w-24 h-24 mb-4" onerror="this.style.display='none';">
-                <h1 class="text-4xl md:text-5xl font-bold text-center">PALUTO SEAFOOD GRILL & RESTAURANT</h1>
+                <h1 class="text-4xl md:text-5xl font-bold text-center" style="color:#d0080e;">
+                PALUTO SEAFOOD GRILL & RESTAURANT
+                </h1>
             </div>
-            <p class="text-xl mb-8 text-gray-700">Skip the Lines, Savor the Feast!</p>
+            <p class="text-xl mb-8 text-gray-700 font-bold">Skip the Lines, Savor the Feast!</p>
 
             <!-- Photo Gallery (wide 3240x1080 carousel) -->
             <div class="mb-8">
@@ -224,63 +226,99 @@
                         </div>
                     </div>
                     <!-- Special Requests -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-semibold text-black mb-2">Special Requests</label>
-                        <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Please let us know about any allergies, dietary restrictions, or special occasions..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
-                    </div>
-                    <!-- Terms and Conditions -->
-                    <div class="mb-6">
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-black mb-2">Special Requests</label>
+                            <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Please let us know about any allergies, dietary restrictions, or special occasions..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
+                        </div>
+                        <!-- Terms and Conditions -->
+                        <h3 class="text-lg font-semibold text-black mb-3">Terms and Conditions</h3>
+                        <div class="mb-6">
                         <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-64 overflow-y-auto">
-                            <h3 class="text-lg font-semibold text-black mb-3">Terms and Conditions</h3>
+                            
                             <div class="space-y-4 text-sm text-gray-700">
-                                <div>
-                                    <h4 class="font-semibold text-black mb-2">Operating Hours</h4>
-                                    <p>Lunch: 10:00 AM to 3:00 PM (Last order at 2:00 PM)</p>
-                                    <p>Dinner: 5:00 PM to 9:00 PM (Last order at 8:00 PM)</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-black mb-2">Pricing</h4>
-                                    <p>Adults: ₱599</p>
-                                    <p class="font-medium">Children:</p>
-                                    <ul class="ml-4 list-disc">
-                                        <li>Below 3 feet: Free</li>
-                                        <li>3 to 4 feet: ₱299</li>
-                                        <li>4 feet above: ₱599</li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-black mb-2">A la Carte Options</h4>
-                                    <p>Native Chicken, Alimango (Mud Crabs), and Lobsters are available upon order.</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-black mb-2">Policies</h4>
-                                    <p class="font-medium">Dine-In Only</p>
-                                    <p>Strictly no sharing or takeouts. Leftovers cannot be taken home.</p>
-                                    <p class="font-medium mt-2">No Leftovers</p>
-                                    <p>Excessive leftovers (200 grams or more per dish) will incur a charge of ₱100 per 100 grams.</p>
-                                    <p class="font-medium mt-2">No Outside Food & Drinks</p>
-                                    <p>Bringing of outside food or beverages is strictly prohibited.</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-black mb-2">Birthday Promo</h4>
-                                    <p class="font-medium">On the Day of the Birthday</p>
-                                    <p>Eat for free when accompanied by one (1) full-paying adult.</p>
-                                    <p class="font-medium mt-2">Within the Birthday Month</p>
-                                    <p>Eat for free when accompanied by four (4) full-paying adults.</p>
-                                    <p class="font-medium mt-2">Requirements</p>
-                                    <p>Present a valid government-issued or company ID (with photo and birthdate).</p>
-                                    <p>If no ID is available, a birth certificate and a photo ID will be accepted.</p>
-                                    <p class="font-medium mt-2">Note</p>
-                                    <p>The Birthday Promo cannot be combined with other discounts.</p>
-                                </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Operating Hours</h4>
+                                <p>Lunch Service: 10:00 AM – 3:00 PM (Last order at 2:00 PM)</p>
+                                <p>Dinner Service: 5:00 PM – 9:00 PM (Last order at 8:00 PM)</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Pricing</h4>
+                                <p>Adults: ₱599</p>
+                                <p class="font-medium">Children:</p>
+                                <ul class="ml-4 list-disc">
+                                <li>Below 3 ft: Free</li>
+                                <li>3 ft – 4 ft: ₱299</li>
+                                <li>Above 4 ft: ₱599</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Unli Paluto Upgrade</h4>
+                                <p>₱599 UNLI-PALUTO is available every Saturday &amp; Sunday.</p>
+                                <p>Each diner may upgrade their meal for an additional ₱100 to include either one (1) Shake or one (1) Dessert, which is not unlimited.</p>
+                                <p>The ₱100 upgrade option applies per diner and cannot be shared per table.</p>
+                                <p>This offer is available for dine-in guests only.</p>
+                                <p>Enjoy this promo every Saturday &amp; Sunday!</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Birthday Promo</h4>
+                                <p class="font-medium">On Your Birthday</p>
+                                <p>Celebrate with us and enjoy FREE dining when accompanied by one (1) full-paying adult.</p>
+                                <p class="font-medium mt-2">Birthday Month Treat</p>
+                                <p>Can’t make it on the exact day? No worries! Dine for FREE anytime within your birthday month when accompanied by four (4) full-paying adults.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">À la Carte Selections</h4>
+                                <p>In addition to our unlimited offerings, you may also order premium dishes such as Native Chicken, Alimango (Mud Crabs), and Lobsters.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Policies</h4>
+                                <p class="font-medium">Dine-In Only</p>
+                                <p>Our unlimited offering is exclusively for dine-in. Sharing, take-outs, and bringing home leftovers are not allowed.</p>
+                                <p class="font-medium mt-2">No Leftovers</p>
+                                <p>To minimize food waste, excessive leftovers (200 grams or more per dish) will be charged ₱100 per 100 grams.</p>
+                                <p class="font-medium mt-2">No Outside Food &amp; Drinks</p>
+                                <p>Guests are not permitted to bring outside food or beverages into the restaurant.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Requirements</h4>
+                                <p>Guests must present a valid government-issued or company ID with photo and birthdate.</p>
+                                <p>If no valid ID is available, a birth certificate together with a photo ID will be accepted.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-semibold text-black mb-2">Note</h4>
+                                <p>The Birthday Promo may not be combined with any other discounts or promotions.</p>
+                            </div>
+
                             </div>
                         </div>
+                        </div>
+
                         <div class="flex items-start space-x-3">
                             <input type="checkbox" id="agreeTerms" name="agreeTerms" required class="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
                             <label for="agreeTerms" class="text-sm text-gray-700">I have read and agree to the terms and conditions, policies, and pricing listed above.</label>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transform hover:scale-105 transition-all duration-300">Submit Reservation</button>
+                    <div class="mt-4 flex justify-center">
+                    <div class="mt-6 mb-6 flex justify-center">
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center 
+                            w-full sm:w-auto md:w-64 
+                            bg-[#d0080e] hover:bg-[#b2070c] 
+                            text-white py-3 px-8 rounded-lg font-semibold
+                            transform hover:scale-105 transition-all duration-300">
+                        Submit Reservation
+                    </button>
+                    </div>
+                    </div>
                 </form>
             </div>
         </div>
