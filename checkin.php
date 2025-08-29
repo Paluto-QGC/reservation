@@ -12,8 +12,13 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
   // .env (same folder as this file)
-  $dotenv = Dotenv::createImmutable(__DIR__);
-  $dotenv->load();
+    use Dotenv\Dotenv;
+
+    $envDir = __DIR__;                 // adjust if file lives in subfolder
+    $envPath = $envDir . '/.env';
+    if (is_readable($envPath)) {
+        Dotenv::createImmutable($envDir)->load();
+    }
 
   $SHEET_ID   = $_ENV['GOOGLE_SHEET_ID'] ?? '';
   $SHEET_NAME = $_ENV['GOOGLE_SHEET_NAME'] ?? 'UNLI_PALUTO';
