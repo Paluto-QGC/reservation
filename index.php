@@ -172,7 +172,6 @@
                             <button type="button" class="time-slot bg-gray-100 hover:bg-orange-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-medium" data-time="18:00">6:00 PM</button>
                             <button type="button" class="time-slot bg-gray-100 hover:bg-orange-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-medium" data-time="19:00">7:00 PM</button>
                             <button type="button" class="time-slot bg-gray-100 hover:bg-orange-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-medium" data-time="20:00">8:00 PM</button>
-                            <button type="button" class="time-slot bg-gray-100 hover:bg-orange-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-medium" data-time="21:00">9:00 PM</button>
                         </div>
                         <input type="hidden" id="selectedTime" name="selectedTime" required>
                     </div>
@@ -221,7 +220,7 @@
                             </div>
                         </div>
                         <div class="mt-2 text-sm text-gray-500">
-                            <span class="font-bold">Total guests:</span> <span id="totalGuests" class="font-medium">2</span> (Children under 3 eat free)
+                            <span class="font-bold">Total guests:</span> <span id="totalGuests" class="font-medium">2</span> (Children under 3? Their Feast is Free!)
                         </div>
                     </div>
                     <!-- Special Requests -->
