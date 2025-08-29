@@ -131,14 +131,14 @@ $qrDataUri = 'data:image/png;base64,' . base64_encode($qrBinary);
 $tmpQrPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $reservationNo . '.png';
 file_put_contents($tmpQrPath, $qrBinary);
 
-/* ---------------------------------------------------------------------------
-   Append to Google Sheet (exact 11 columns: A..K, correct order)
---------------------------------------------------------------------------- */
+/* -----------------------------------------------------------------------------
+   Append to Google Sheet
+----------------------------------------------------------------------------- */
 try {
   $client = new GoogleClient();
   $credPathAbs = $CREDS_PATH;
   if (!str_starts_with($credPathAbs, DIRECTORY_SEPARATOR) && !preg_match('~^[A-Za-z]:\\\\~', $credPathAbs)) {
-    $credPathAbs = __DIR__ . '/' . $credPathAbs;
+    $credPathAbs = __DIR__ . '/' . $credPathAbs; // make relative to project root
   }
   if (!file_exists($credPathAbs)) {
     throw new RuntimeException('Google credentials file not found at ' . $credPathAbs);
@@ -148,26 +148,26 @@ try {
   $client->setScopes([GoogleSheets::SPREADSHEETS]);
   $sheets = new GoogleSheets($client);
 
-  // A..K must match your header row exactly:
-  // A Timestamp | B Code | C Date | D Time | E Name | F Phone | G Email | H Adult | I Kid | J TotalPax | K Status/Notes
-  $row = [
-    date('Y-m-d H:i:s'), // A Timestamp
-    $reservationNo,      // B Code
-    $dt->format('Y-m-d'),// C Date
-    $timeRaw,            // D Time
-    $name,               // E Name
-    $phone,              // F Phone
-    $email,              // G Email
-    $adults,             // H Adult
-    $kids,               // I Kid
-    $totalGuests,        // J TotalPax
-    'QR sent via email', // K Status/Notes
-  ];
+  // Expected headers in your sheet (row 1):
+  // Timestamp | Reservation No | Name | Email | Phone | Date | Time | Adults | Kids | Total Guests | Total Amount | Special Requests | Status/Notes
+  $range  = $SHEET_NAME . '!A:M';
+  $values = [[
+    date('Y-m-d H:i:s'),
+    $reservationNo,
+    $name,
+    $email,
+    $phone,
+    $dt->format('Y-m-d'),
+    $timeRaw,
+    $adults,
+    $kids,
+    $totalGuests,
+    $requests,
+    'QR sent via email',
+  ]];
 
-  // Anchor to A1:K1 so appends always start at column A
-  $range  = $SHEET_NAME.'!A1:K1';
-  $body   = new Google\Service\Sheets\ValueRange(['values' => [$row]]);
-  $params = ['valueInputOption' => 'USER_ENTERED', 'insertDataOption' => 'INSERT_ROWS'];
+  $body   = new Google\Service\Sheets\ValueRange(['values' => $values]);
+  $params = ['valueInputOption' => 'USER_ENTERED'];
   $sheets->spreadsheets_values->append($SHEET_ID, $range, $body, $params);
 
 } catch (Throwable $e) {
@@ -175,8 +175,6 @@ try {
   http_response_code(500);
   exit('Sheet error: ' . $e->getMessage());
 }
-
-
 
 /* -----------------------------------------------------------------------------
    Send confirmation email
