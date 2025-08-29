@@ -38,10 +38,19 @@ $SHEET_NAME = envv('GOOGLE_SHEET_NAME', 'UNLI_PALUTO');
 $CREDS_PATH = envv('GOOGLE_APPLICATION_CREDENTIALS', 'config/credentials.json');
 $BASE_URL   = envv('BASE_URL', '/');
 
+$BASE_URL   = envv('BASE_URL', '/');
+
 if ($SHEET_ID === '') {
   http_response_code(500);
   exit('Missing GOOGLE_SHEET_ID (set it in Render → Environment).');
 }
+
+/* Allowed time slots */
+$ALLOWED_TIMES = [
+  '10:00','11:00','12:00','13:00','14:00',
+  '17:00','18:00','19:00','20:00','21:00'
+];
+
 
 /* -----------------------------------------------------------------------------
    Validate POST input
