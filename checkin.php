@@ -12,8 +12,6 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
   // .env (same folder as this file)
-    use Dotenv\Dotenv;
-
     $envDir = __DIR__;                 // adjust if file lives in subfolder
     $envPath = $envDir . '/.env';
     if (is_readable($envPath)) {

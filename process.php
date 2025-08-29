@@ -18,8 +18,15 @@ use Dotenv\Dotenv;
 function clean(string $s): string { return trim(strip_tags($s)); }
 
 // Load .env (project root)
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Load .env only if it exists (Render uses real env vars)
+$envDir  = __DIR__;
+$envFile = $envDir . '/.env';
+if (is_file($envFile) && is_readable($envFile)) {
+    Dotenv::createImmutable($envDir)->load();
+} else {
+    // Don’t throw on Render; proceed with $_ENV from dashboard
+    Dotenv::createImmutable($envDir)->safeLoad();
+}
 
 $APP_TZ = $_ENV['APP_TZ'] ?? 'Asia/Manila';
 @date_default_timezone_set($APP_TZ);
