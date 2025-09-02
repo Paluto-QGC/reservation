@@ -34,32 +34,50 @@
       </div>
 
       <p class="text-xl mb-8 text-gray-700 font-bold">Skip the Lines, Savor the Feast!</p>
-
-      <!-- Photo Gallery -->
-      <div class="mb-8">
+    
+        <!-- Photo Gallery -->
+        <div class="mb-8">
         <div class="max-w-6xl mx-auto">
-          <div id="heroCarousel" class="relative w-full">
+            
+            <!-- Text placed above the photo -->
+            <p class="text-small mb-4 text-gray-700">
+            Minimum of 10 guests to reserve. Fewer than 10? Walk in anytime!
+            </p>
+
+            <!-- Carousel -->
+            <div id="heroCarousel" class="relative w-full">
             <div class="w-full aspect-[3/1] overflow-hidden rounded-lg shadow-lg">
-              <img id="heroSlide" src="https://i.ibb.co/JRGDpYbd/banner.jpg" alt="Paluto gallery" class="w-full h-full object-cover transition-transform duration-500">
+                <img id="heroSlide" src="https://i.ibb.co/JRGDpYbd/banner.jpg" 
+                    alt="Paluto gallery" 
+                    class="w-full h-full object-cover transition-transform duration-500">
             </div>
 
             <!-- Prev/Next -->
-            <button type="button" id="heroPrev" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full focus:outline-none" aria-label="Previous slide">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <button type="button" id="heroPrev"
+                class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full focus:outline-none"
+                aria-label="Previous slide">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
             </button>
-            <button type="button" id="heroNext" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full focus:outline-none" aria-label="Next slide">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <button type="button" id="heroNext"
+                class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full focus:outline-none"
+                aria-label="Next slide">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </button>
 
             <!-- Dots -->
             <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2">
-              <span class="hero-dot w-3 h-3 rounded-full bg-white"></span>
-              <span class="hero-dot w-3 h-3 rounded-full bg-white/40"></span>
-              <span class="hero-dot w-3 h-3 rounded-full bg-white/40"></span>
+                <span class="hero-dot w-3 h-3 rounded-full bg-white"></span>
+                <span class="hero-dot w-3 h-3 rounded-full bg-white/40"></span>
+                <span class="hero-dot w-3 h-3 rounded-full bg-white/40"></span>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
+        </div>
+
 
       <p class="text-lg mb-8 text-gray-600 max-w-2xl mx-auto">
         Reserve at PALUTO and indulge in an unforgettable dining experience featuring fresh seafood, traditional grilled specialties, and the finest Filipino cuisine. Perfect for family gatherings, celebrations, and special occasions.
