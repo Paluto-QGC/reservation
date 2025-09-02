@@ -184,15 +184,23 @@
               <input type="text" id="customerName" name="customerName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-black mb-2">Phone Number</label>
-              <input type="tel" id="phoneNumber" name="phoneNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            <label class="block text-sm font-semibold text-black mb-2">Phone Number</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber"
+                pattern="^(\+63\d{10}|09\d{9})$"
+                maxlength="13"
+                minlength="11"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="+639123456789 or 09123456789"
+                required>
             </div>
-          </div>
 
-          <div class="mb-4">
-            <label class="block text-sm font-semibold text-black mb-2">Email Address</label>
-            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-          </div>
+            </div>
+                <div class="mb-4">
+                <label class="block text-sm font-semibold text-black mb-2">Email Address</label>
+                <input type="email" id="email" name="email"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            </div>
+
 
           <!-- Number of Guests (min total = 10) -->
           <div class="mb-4">

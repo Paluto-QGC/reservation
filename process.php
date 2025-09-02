@@ -26,7 +26,8 @@ if (!$SHEET_ID) { http_response_code(500); exit('Missing GOOGLE_SHEET_ID in env'
 $ALLOWED_TIMES = ['10:00','11:00','12:00','13:00','14:00','17:00','18:00','19:00','20:00','21:00'];
 
 // ---------- Validate POST ----------
-$required = ['selectedDate','selectedTime','customerName','phoneNumber','email','adults','kids','agreeTerms'];
+// EMAIL REMOVED FROM REQUIRED
+$required = ['selectedDate','selectedTime','customerName','phoneNumber','adults','kids','agreeTerms'];
 foreach ($required as $k) {
   if (!isset($_POST[$k]) || trim((string)$_POST[$k]) === '') {
     http_response_code(400); exit('Please complete all required fields.');
@@ -38,12 +39,14 @@ $dateRaw  = clean((string)$_POST['selectedDate']);  // YYYY-MM-DD
 $timeRaw  = clean((string)$_POST['selectedTime']);  // HH:MM 24h
 $name     = clean((string)$_POST['customerName']);
 $phone    = clean((string)$_POST['phoneNumber']);
-$email    = strtolower(trim((string)$_POST['email']));
+$email    = strtolower(trim((string)($_POST['email'] ?? ''))); // <- may be empty
 $adults   = (int)$_POST['adults'];
 $kids     = (int)$_POST['kids'];
 $requests = isset($_POST['specialRequests']) ? clean((string)$_POST['specialRequests']) : '';
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { http_response_code(400); exit('Please enter a valid email.'); }
+// Validate email ONLY IF PROVIDED
+if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) { http_response_code(400); exit('Please enter a valid email.'); }
+
 if ($adults < 1 || $adults > 20) { http_response_code(400); exit('Adults must be 1–20.'); }
 if ($kids < 0 || $kids > 10) { http_response_code(400); exit('Kids must be 0–10.'); }
 if (!in_array($timeRaw, $ALLOWED_TIMES, true)) { http_response_code(400); exit('Please select a valid time slot.'); }
@@ -69,7 +72,7 @@ $reservationNo = 'PLT-' . str_pad((string)random_int(0, 999999), 6, '0', STR_PAD
 $qrPayload = json_encode([
   'resNo'  => $reservationNo,
   'name'   => $name,
-  'email'  => $email,
+  'email'  => $email, // may be ''
   'phone'  => $phone,
   'date'   => $dt->format('Y-m-d'),
   'time'   => $timeRaw,
@@ -104,13 +107,16 @@ try {
   $client->setScopes([GoogleSheets::SPREADSHEETS]);
   $sheets = new GoogleSheets($client);
 
-  // A:L (12 columns) — no Estimated Amount
+  // Status depends on email presence
+  $statusNote = ($email !== '') ? 'QR sent via email' : 'QR generated — no email provided';
+
+  // A:L (12 columns)
   $range  = $SHEET_NAME . '!A:L';
   $values = [[
     date('Y-m-d H:i:s'), // A Timestamp
     $reservationNo,      // B Code
     $name,               // C Name
-    $email,              // D Email
+    $email,              // D Email (may be empty)
     $phone,              // E Phone
     $dt->format('Y-m-d'),// F Date
     $timeRaw,            // G Time
@@ -118,7 +124,7 @@ try {
     $kids,               // I Kids
     $totalGuests,        // J Total Guests
     $requests,           // K Special Requests
-    'QR sent via email', // L Status/Notes
+    $statusNote,         // L Status/Notes
   ]];
 
   $body   = new Google\Service\Sheets\ValueRange(['values' => $values]);
@@ -131,117 +137,119 @@ try {
   exit('Sheet error: ' . $e->getMessage());
 }
 
-// ---------- Email ----------
-try {
-  $host      = $_ENV['SMTP_HOST'] ?? '';
-  $port      = (int)($_ENV['SMTP_PORT'] ?? 587);
-  $user      = $_ENV['SMTP_USER'] ?? '';
-  $pass      = $_ENV['SMTP_PASS'] ?? '';
-  $fromEmail = $_ENV['SMTP_FROM_EMAIL'] ?? $user;
-  $fromName  = $_ENV['SMTP_FROM_NAME'] ?? 'PALUTO PH';
-  if (!$host || !$user || !$pass) throw new RuntimeException('SMTP settings missing in env');
+// ---------- Email (ONLY IF EMAIL PROVIDED) ----------
+if ($email !== '') {
+  try {
+    $host      = $_ENV['SMTP_HOST'] ?? '';
+    $port      = (int)($_ENV['SMTP_PORT'] ?? 587);
+    $user      = $_ENV['SMTP_USER'] ?? '';
+    $pass      = $_ENV['SMTP_PASS'] ?? '';
+    $fromEmail = $_ENV['SMTP_FROM_EMAIL'] ?? $user;
+    $fromName  = $_ENV['SMTP_FROM_NAME'] ?? 'PALUTO PH';
+    if (!$host || !$user || !$pass) throw new RuntimeException('SMTP settings missing in env');
 
-  $mail = new PHPMailer(true);
-  $mail->isSMTP();
-  $mail->Host       = $host;
-  $mail->SMTPAuth   = true;
-  $mail->Username   = $user;
-  $mail->Password   = $pass;
-  $mail->SMTPSecure = ($port === 465) ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-  $mail->Port       = $port;
+    $mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host       = $host;
+    $mail->SMTPAuth   = true;
+    $mail->Username   = $user;
+    $mail->Password   = $pass;
+    $mail->SMTPSecure = ($port === 465) ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = $port;
 
-  $mail->setFrom($fromEmail, $fromName);
-  $mail->addAddress($email, $name);
-  $mail->Subject = "Reservation Confirmed - $reservationNo";
+    $mail->setFrom($fromEmail, $fromName);
+    $mail->addAddress($email, $name);
+    $mail->Subject = "Reservation Confirmed - $reservationNo";
 
-  $mail->addEmbeddedImage($tmpQrPath, 'qr', $reservationNo . '.png', 'base64', 'image/png');
-  $mail->addAttachment($tmpQrPath, $reservationNo . '.png');
+    $mail->addEmbeddedImage($tmpQrPath, 'qr', $reservationNo . '.png', 'base64', 'image/png');
+    $mail->addAttachment($tmpQrPath, $reservationNo . '.png');
 
-  // Safe for HTML
-  $safeName = htmlspecialchars($name, ENT_QUOTES);
-  $safeEmail = htmlspecialchars($email, ENT_QUOTES);
-  $safePhone = htmlspecialchars($phone, ENT_QUOTES);
-  $safeDate = htmlspecialchars($prettyDate, ENT_QUOTES);
-  $safeTime = htmlspecialchars($prettyTime, ENT_QUOTES);
-  $safeReq  = htmlspecialchars($requests, ENT_QUOTES);
+    // Safe for HTML
+    $safeName = htmlspecialchars($name, ENT_QUOTES);
+    $safeEmail = htmlspecialchars($email, ENT_QUOTES);
+    $safePhone = htmlspecialchars($phone, ENT_QUOTES);
+    $safeDate = htmlspecialchars($prettyDate, ENT_QUOTES);
+    $safeTime = htmlspecialchars($prettyTime, ENT_QUOTES);
+    $safeReq  = htmlspecialchars($requests, ENT_QUOTES);
 
-  $html = '
-  <div style="margin:0;padding:0;background:#fff7ed;font-family:Arial,Helvetica,sans-serif;color:#111827">
-    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#fff7ed">
-      <tr>
-        <td align="center" style="padding:24px">
-          <table width="640" cellpadding="0" cellspacing="0" role="presentation" style="max-width:640px;background:#ffffff;border-radius:16px;border:1px solid #fee2e2;box-shadow:0 10px 30px rgba(249,115,22,.15);overflow:hidden">
-            <tr>
-              <td style="padding:20px 24px;background:linear-gradient(135deg,#f97316,#dc2626);">
-                <table width="100%" role="presentation">
-                  <tr>
-                    <td style="color:#fff;font-weight:800;font-size:22px;letter-spacing:.3px">Reservation Confirmed</td>
-                    <td align="right" style="color:#fff;font-size:12px;opacity:.9">No: <strong>' . $reservationNo . '</strong></td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
+    $html = '
+    <div style="margin:0;padding:0;background:#fff7ed;font-family:Arial,Helvetica,sans-serif;color:#111827">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#fff7ed">
+        <tr>
+          <td align="center" style="padding:24px">
+            <table width="640" cellpadding="0" cellspacing="0" role="presentation" style="max-width:640px;background:#ffffff;border-radius:16px;border:1px solid #fee2e2;box-shadow:0 10px 30px rgba(249,115,22,.15);overflow:hidden">
+              <tr>
+                <td style="padding:20px 24px;background:linear-gradient(135deg,#f97316,#dc2626);">
+                  <table width="100%" role="presentation">
+                    <tr>
+                      <td style="color:#fff;font-weight:800;font-size:22px;letter-spacing:.3px">Reservation Confirmed</td>
+                      <td align="right" style="color:#fff;font-size:12px;opacity:.9">No: <strong>' . $reservationNo . '</strong></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
 
-            <tr>
-              <td style="padding:22px 24px 8px 24px">
-                <p style="margin:0 0 8px 0;color:#111827;font-size:14px">Hi <strong>' . $safeName . '</strong>,</p>
-                <p style="margin:0 0 14px 0;color:#374151;font-size:14px">Your table at <strong>Paluto Seafood Grill & Restaurant</strong> is confirmed. Show this QR upon arrival.</p>
-              </td>
-            </tr>
+              <tr>
+                <td style="padding:22px 24px 8px 24px">
+                  <p style="margin:0 0 8px 0;color:#111827;font-size:14px">Hi <strong>' . $safeName . '</strong>,</p>
+                  <p style="margin:0 0 14px 0;color:#374151;font-size:14px">Your table at <strong>Paluto Seafood Grill & Restaurant</strong> is confirmed. Show this QR upon arrival.</p>
+                </td>
+              </tr>
 
-            <tr>
-              <td align="center" style="padding:0 24px 16px 24px">
-                <img src="cid:qr" alt="QR" width="200" height="200" style="display:block;border:1px solid #e5e7eb;border-radius:10px;background:#fff;padding:6px;box-shadow:0 8px 20px rgba(0,0,0,.08)" />
-                <div style="font-size:12px;color:#6b7280;margin-top:8px">Present this QR at the entrance</div>
-              </td>
-            </tr>
+              <tr>
+                <td align="center" style="padding:0 24px 16px 24px">
+                  <img src="cid:qr" alt="QR" width="200" height="200" style="display:block;border:1px solid #e5e7eb;border-radius:10px;background:#fff;padding:6px;box-shadow:0 8px 20px rgba(0,0,0,.08)" />
+                  <div style="font-size:12px;color:#6b7280;margin-top:8px">Present this QR at the entrance</div>
+                </td>
+              </tr>
 
-            <tr>
-              <td style="padding:0 24px 20px 24px">
-                <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 8px;font-size:14px">
-                  <tr><td style="width:160px;color:#6b7280">Name</td><td style="color:#111827">' . $safeName . '</td></tr>
-                  <tr><td style="width:160px;color:#6b7280">Email</td><td style="color:#111827">' . $safeEmail . '</td></tr>
-                  <tr><td style="width:160px;color:#6b7280">Phone</td><td style="color:#111827">' . $safePhone . '</td></tr>
-                  <tr><td style="width:160px;color:#6b7280">Date</td><td style="color:#111827">' . $safeDate . '</td></tr>
-                  <tr><td style="width:160px;color:#6b7280">Time</td><td style="color:#111827">' . $safeTime . '</td></tr>
-                  <tr><td style="width:160px;color:#6b7280">Guests</td><td style="color:#111827">' . $adults . ' Adult' . ($adults>1?'s':'') . ($kids>0?(', ' . $kids . ' Child' . ($kids>1?'ren':'') ):'') . ' (Total: ' . $totalGuests . ')</td></tr>
-                  ' . ($safeReq !== '' ? '<tr><td style="width:160px;color:#6b7280">Requests</td><td style="color:#111827">' . $safeReq . '</td></tr>' : '') . '
-                </table>
-              </td>
-            </tr>
+              <tr>
+                <td style="padding:0 24px 20px 24px">
+                  <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 8px;font-size:14px">
+                    <tr><td style="width:160px;color:#6b7280">Name</td><td style="color:#111827">' . $safeName . '</td></tr>
+                    <tr><td style="width:160px;color:#6b7280">Email</td><td style="color:#111827">' . $safeEmail . '</td></tr>
+                    <tr><td style="width:160px;color:#6b7280">Phone</td><td style="color:#111827">' . $safePhone . '</td></tr>
+                    <tr><td style="width:160px;color:#6b7280">Date</td><td style="color:#111827">' . $safeDate . '</td></tr>
+                    <tr><td style="width:160px;color:#6b7280">Time</td><td style="color:#111827">' . $safeTime . '</td></tr>
+                    <tr><td style="width:160px;color:#6b7280">Guests</td><td style="color:#111827">' . $adults . ' Adult' . ($adults>1?'s':'') . ($kids>0?(', ' . $kids . ' Child' . ($kids>1?'ren':'') ):'') . ' (Total: ' . $totalGuests . ')</td></tr>
+                    ' . ($safeReq !== '' ? '<tr><td style="width:160px;color:#6b7280">Requests</td><td style="color:#111827">' . $safeReq . '</td></tr>' : '') . '
+                  </table>
+                </td>
+              </tr>
 
-            <tr>
-              <td style="padding:14px 24px 20px 24px;border-top:1px solid #f3f4f6">
-                <div style="font-size:12px;color:#6b7280;line-height:1.5">
-                  <div><strong>Operating Hours:</strong> Lunch 10:00AM–3:00PM (last order 2:00PM) • Dinner 5:00PM–9:00PM (last order 8:00PM)</div>
-                  <div>Adults ₱599 • Kids (3–11) ₱299 • Kids below 3ft: Free</div>
-                  <div>Dine-in only • No outside food & drinks • Excessive leftovers are chargeable</div>
-                </div>
-              </td>
-            </tr>
+              <tr>
+                <td style="padding:14px 24px 20px 24px;border-top:1px solid #f3f4f6">
+                  <div style="font-size:12px;color:#6b7280;line-height:1.5">
+                    <div><strong>Operating Hours:</strong> Lunch 10:00AM–3:00PM (last order 2:00PM) • Dinner 5:00PM–9:00PM (last order 8:00PM)</div>
+                    <div>Adults ₱599 • Kids (3–11) ₱299 • Kids below 3ft: Free</div>
+                    <div>Dine-in only • No outside food & drinks • Excessive leftovers are chargeable</div>
+                  </div>
+                </td>
+              </tr>
 
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>';
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>';
 
-  $mail->isHTML(true);
-  $mail->Body    = $html;
-  $mail->AltBody = "Reservation No: $reservationNo\nName: $name\nEmail: $email\nPhone: $phone\nDate: $prettyDate\nTime: $prettyTime\nGuests: $adults adult(s)";
-  $mail->send();
+    $mail->isHTML(true);
+    $mail->Body    = $html;
+    $mail->AltBody = "Reservation No: $reservationNo\nName: $name\nEmail: $email\nPhone: $phone\nDate: $prettyDate\nTime: $prettyTime\nGuests: $adults adult(s)";
+    $mail->send();
 
-} catch (Throwable $e) {
-  @unlink($tmpQrPath);
-  http_response_code(500);
-  exit('Email error: ' . $e->getMessage());
+  } catch (Throwable $e) {
+    @unlink($tmpQrPath);
+    http_response_code(500);
+    exit('Email error: ' . $e->getMessage());
+  }
 }
 
 // ---------- Cleanup + confirmation page ----------
 @unlink($tmpQrPath);
 
 $safeName  = htmlspecialchars($name, ENT_QUOTES);
-$safeEmail = htmlspecialchars($email, ENT_QUOTES);
+$safeEmail = htmlspecialchars($email, ENT_QUOTES); // may be ''
 $safePhone = htmlspecialchars($phone, ENT_QUOTES);
 $safeReq   = htmlspecialchars($requests, ENT_QUOTES);
 ?>
@@ -277,7 +285,9 @@ $safeReq   = htmlspecialchars($requests, ENT_QUOTES);
         <div>
           <div class="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
             <div class="text-gray-500">Name</div><div class="col-span-2 font-medium"><?= $safeName; ?></div>
-            <div class="text-gray-500">Email</div><div class="col-span-2 font-medium break-all"><?= $safeEmail; ?></div>
+            <?php if ($safeEmail !== ''): ?>
+              <div class="text-gray-500">Email</div><div class="col-span-2 font-medium break-all"><?= $safeEmail; ?></div>
+            <?php endif; ?>
             <div class="text-gray-500">Phone</div><div class="col-span-2 font-medium"><?= $safePhone; ?></div>
             <div class="text-gray-500">Date</div><div class="col-span-2 font-medium"><?= $prettyDate; ?></div>
             <div class="text-gray-500">Time</div><div class="col-span-2 font-medium"><?= $prettyTime; ?></div>
@@ -296,7 +306,9 @@ $safeReq   = htmlspecialchars($requests, ENT_QUOTES);
       <div class="px-6 pb-6 flex flex-wrap items-center justify-center gap-3">
         <a href="<?= htmlspecialchars($BASE_URL, ENT_QUOTES); ?>" class="px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold">Back to Reservation</a>
         <a href="<?= $qrDataUri; ?>" download="<?= $reservationNo; ?>.png" class="px-5 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold">Download QR</a>
-        <a href="mailto:<?= $safeEmail; ?>?subject=Reservation%20<?= urlencode($reservationNo); ?>" class="px-5 py-3 rounded-xl bg-white border text-gray-800 hover:bg-gray-50 font-semibold">Open Mail App</a>
+        <?php if ($safeEmail !== ''): ?>
+          <a href="mailto:<?= $safeEmail; ?>?subject=Reservation%20<?= urlencode($reservationNo); ?>" class="px-5 py-3 rounded-xl bg-white border text-gray-800 hover:bg-gray-50 font-semibold">Open Mail App</a>
+        <?php endif; ?>
       </div>
     </div>
   </div>
