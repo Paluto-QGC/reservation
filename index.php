@@ -199,7 +199,8 @@
           <div class="grid md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-semibold text-black mb-2">Full Name</label>
-              <input type="text" id="customerName" name="customerName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+              <input type="text" id="customerName" name="customerName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              placeholder="Full Name">
             </div>
             <div>
             <label class="block text-sm font-semibold text-black mb-2">Phone Number</label>
@@ -208,7 +209,7 @@
                 maxlength="13"
                 minlength="11"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="+639123456789 or 09123456789"
+                placeholder="+63 or 09"
                 required>
             </div>
 
@@ -216,7 +217,8 @@
                 <div class="mb-4">
                 <label class="block text-sm font-semibold text-black mb-2">Email Address</label>
                 <input type="email" id="email" name="email"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                    placeholder="Email (Optional)">
             </div>
 
 
